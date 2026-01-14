@@ -1,0 +1,13 @@
+torch
+transformers
+datasets
+fastapi
+uvicorn
+pydantic
+scikit-learn
+streamlit
+python-dotenv
+pandas
+numpy
+matplotlib
+seaborn
