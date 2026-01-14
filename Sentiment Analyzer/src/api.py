@@ -17,11 +17,11 @@ def root():
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Sentiment Analyzer</title>
+        <title> Welcome To Sentiment Analysis Web Application </title>
         <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body {
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                font-family: 'calibri', Tahoma, Geneva, Verdana, sans-serif;
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 min-height: 100vh;
                 display: flex;
@@ -34,20 +34,20 @@ def root():
                 border-radius: 20px;
                 box-shadow: 0 20px 60px rgba(0,0,0,0.3);
                 padding: 40px;
-                max-width: 600px;
+                max-width: 1000px;
                 width: 100%;
             }
             h1 {
                 color: #333;
                 margin-bottom: 10px;
                 text-align: center;
-                font-size: 32px;
+                font-size: 50px;
             }
             .subtitle {
-                color: #666;
+                color: #777;
                 text-align: center;
                 margin-bottom: 30px;
-                font-size: 14px;
+                font-size: 30px;
             }
             .form-group {
                 margin-bottom: 20px;
@@ -62,7 +62,7 @@ def root():
                 width: 100%;
                 padding: 15px;
                 border: 2px solid #e0e0e0;
-                border-radius: 10px;
+                border-radius: 1000px;
                 font-family: inherit;
                 font-size: 14px;
                 resize: vertical;
@@ -79,7 +79,7 @@ def root():
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 color: white;
                 border: none;
-                border-radius: 10px;
+                border-radius: 100px;
                 font-size: 16px;
                 font-weight: 600;
                 cursor: pointer;
@@ -183,13 +183,13 @@ def root():
     </head>
     <body>
         <div class="container">
-            <h1>😊 Sentiment Analyzer</h1>
+            <h1>😊 Do Analysis your text sentiment </h1>
             <p class="subtitle">Discover the sentiment of your text</p>
             
             <form id="sentimentForm">
                 <div class="form-group">
                     <label for="textInput">Enter your text:</label>
-                    <textarea id="textInput" placeholder="Type something..." required></textarea>
+                    <textarea id="textInput" placeholder="Type something here to do sentimenti analysis..." required></textarea>
                 </div>
                 <button type="submit">Analyze</button>
             </form>
