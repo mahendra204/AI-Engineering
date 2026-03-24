@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+
+  # ── FastAPI REST backend ────────────────────────────────────────────────────
+  api:
+    build: .
+    container_name: rag_api
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --workers 2
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data          # mount your documents folder
+      - ./vectorstore:/app/vectorstore  # persist the vector DB
+    env_file:
+      - .env
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ── Streamlit chat UI ───────────────────────────────────────────────────────
+  ui:
+    build: .
+    container_name: rag_ui
+    command: streamlit run ui.py --server.port 8501 --server.address 0.0.0.0
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./data:/app/data
+      - ./vectorstore:/app/vectorstore
+    env_file:
+      - .env
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  vectorstore:

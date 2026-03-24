@@ -1,0 +1,120 @@
+Introduction to Retrieval-Augmented Generation (RAG)
+
+What is RAG?
+
+Retrieval-Augmented Generation (RAG) is an AI framework that enhances large language model (LLM) responses by retrieving relevant information from external knowledge sources before generating an answer. Unlike standard LLMs that rely solely on their training data, RAG systems can access up-to-date, domain-specific information at inference time.
+
+RAG was first introduced by Lewis et al. in the 2020 paper "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks." The approach has since become a foundational technique for building reliable, enterprise-grade AI applications.
+
+---
+
+How RAG Works
+
+A RAG pipeline consists of two main phases:
+
+1. Indexing Phase (Offline)
+   - Documents are loaded from various sources (PDFs, websites, databases).
+   - Documents are split into smaller chunks (typically 500–1500 tokens).
+   - Each chunk is converted into a dense vector embedding using an embedding model.
+   - Embeddings are stored in a vector database such as Chroma, Pinecone, or Weaviate.
+
+2. Retrieval & Generation Phase (Online)
+   - The user's query is embedded using the same embedding model.
+   - The most semantically similar chunks are retrieved from the vector database.
+   - The retrieved chunks are formatted into a context block.
+   - The context + query are passed to the LLM, which generates a grounded answer.
+
+---
+
+Key Components
+
+Embedding Models
+Embedding models convert text into high-dimensional vectors that capture semantic meaning. Popular choices include:
+- OpenAI text-embedding-3-small (1536 dimensions, cost-effective)
+- OpenAI text-embedding-3-large (3072 dimensions, highest accuracy)
+- Sentence Transformers all-MiniLM-L6-v2 (open-source, local)
+- Nomic Embed Text (optimised for local deployment with Ollama)
+
+Vector Databases
+Vector databases store embeddings and support fast approximate nearest-neighbor (ANN) search:
+- ChromaDB: lightweight, file-based, great for local development
+- Pinecone: managed cloud service, highly scalable
+- Weaviate: open-source with hybrid search support
+- Qdrant: high-performance, production-ready
+
+Large Language Models
+The LLM generates the final answer using the retrieved context:
+- GPT-4o / GPT-4o-mini (OpenAI): best-in-class, widely used
+- Claude 3.5 Sonnet / Haiku (Anthropic): excellent instruction following
+- Llama 3.2 (Meta, via Ollama): open-source, runs locally
+
+---
+
+Chunking Strategies
+
+The way documents are split into chunks significantly impacts retrieval quality:
+
+Fixed-Size Chunking: Splits text every N characters with an overlap. Simple and fast. Works well for uniform documents.
+
+Recursive Character Splitting: Tries to split on natural boundaries (paragraphs, sentences, words) before falling back to character splitting. Best general-purpose approach.
+
+Semantic Chunking: Groups sentences by semantic similarity. Produces more coherent chunks but is computationally expensive.
+
+Sentence-Window Chunking: Indexes individual sentences but retrieves surrounding context. Balances granularity and context.
+
+---
+
+Retrieval Methods
+
+Semantic Search (Dense Retrieval): Uses cosine similarity between query and chunk embeddings. Understands meaning, not just keywords. Best for conversational queries.
+
+Keyword Search (BM25): Classic sparse retrieval using term frequency. Fast and interpretable. Best for exact-match queries.
+
+Hybrid Search: Combines both semantic and keyword search using Reciprocal Rank Fusion (RRF). Balances precision and recall. Recommended default.
+
+Maximum Marginal Relevance (MMR): Selects diverse results by penalising redundant chunks. Reduces repeated information in the context.
+
+---
+
+Evaluation Metrics
+
+RAG systems are typically evaluated on:
+- Faithfulness: Does the answer only use information from the context?
+- Answer Relevance: Does the answer address the question?
+- Context Recall: Does the retrieved context contain the needed information?
+- Context Precision: Are the retrieved chunks relevant?
+
+Tools like RAGAS, TruLens, and DeepEval automate these evaluations.
+
+---
+
+Common Challenges and Solutions
+
+Challenge: Irrelevant retrieval (retrieved chunks don't answer the question)
+Solution: Improve chunking strategy, tune embedding model, use re-rankers (e.g., Cohere Rerank)
+
+Challenge: Lost-in-the-middle problem (LLM ignores middle context chunks)
+Solution: Reduce context size, put most relevant chunks at the start/end
+
+Challenge: Hallucination despite context
+Solution: Use strict system prompts, chain-of-thought reasoning, retrieval validation
+
+Challenge: Latency
+Solution: Cache embeddings, use smaller embedding models, async retrieval pipelines
+
+---
+
+Best Practices
+
+1. Always use an overlap between chunks to avoid losing context at boundaries.
+2. Store metadata (source, page number, date) with each chunk for citations.
+3. Experiment with different chunk sizes: 512-1000 tokens is a good starting range.
+4. Use hybrid retrieval (semantic + BM25) for most production applications.
+5. Set a confidence threshold to avoid returning irrelevant results.
+6. Log queries, retrieved chunks, and answers for continuous improvement.
+7. Implement guardrails to prevent the LLM from answering outside the provided context.
+
+---
+
+This document is included as a sample for testing the RAG application. 
+Feel free to replace it with your own documents in the data/ folder.
