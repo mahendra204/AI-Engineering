@@ -4,12 +4,9 @@ Generates synthetic financial transactions tied to orders and saves to transacti
 Depends on orders.csv being present.
 """
 
-import csv
-import random
-import uuid
+import csv, random, uuid
 from datetime import datetime, timedelta
 
-# --- Config ---
 OUTPUT_FILE = "transactions.csv"
 ORDERS_FILE = "orders.csv"
 RANDOM_SEED = 42
