@@ -1,0 +1,4 @@
+cd rag_app
+pip install -r requirements.txt
+python main.py  # FastAPI server
+streamlit run ui.py  # Chat UI
