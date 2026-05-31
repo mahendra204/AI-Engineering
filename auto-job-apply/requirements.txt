@@ -1,0 +1,6 @@
+scikit-learn
+numpy
+requests
+beautifulsoup4
+python-dotenv
+PyPDF2

@@ -1,0 +1,2 @@
+John Doe
+Data Engineer with 5 years of experience building ETL pipelines using Python and Spark. Skilled in Delta Lake, performance tuning, and distributed data processing. Familiar with SQL, Airflow, and cloud data platforms.
