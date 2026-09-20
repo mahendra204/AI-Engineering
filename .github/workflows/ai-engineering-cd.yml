@@ -89,3 +89,26 @@ jobs:
           echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
           RAG_IMAGE="$IMAGE" docker compose -f docker-compose.prod.yml pull
           RAG_IMAGE="$IMAGE" docker compose -f docker-compose.prod.yml up -d --remove-orphans
+
+  deploy-local-windows:
+    name: Deploy on local Windows Docker runner
+    needs: publish
+    if: ${{ vars.DEPLOY_PLATFORM == 'local-windows' }}
+    runs-on: [self-hosted, windows, docker]
+    environment: production
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Pull and restart local deployment
+        env:
+          IMAGE: ${{ needs.publish.outputs.snapshot }}
+          GHCR_USER: ${{ github.repository_owner }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: rag_app
+        shell: pwsh
+        run: |
+          $env:GHCR_TOKEN | docker login ghcr.io -u $env:GHCR_USER --password-stdin
+          $env:RAG_IMAGE = $env:IMAGE
+          docker compose -f docker-compose.prod.yml pull
+          docker compose -f docker-compose.prod.yml up -d --remove-orphans

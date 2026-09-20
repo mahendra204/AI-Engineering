@@ -116,6 +116,11 @@ self-hosted runner with the labels `self-hosted`, `linux`, and `docker`. Set the
 repository variable `DEPLOY_PLATFORM` to `local`, then the CD workflow will pull
 the published image and restart the Compose services on that machine.
 
+For this Windows workstation, install the self-hosted runner with the labels
+`self-hosted`, `windows`, and `docker`, then set `DEPLOY_PLATFORM` to
+`local-windows`. Docker Desktop must be running, and the repository's
+`production` environment must allow the runner to use `GITHUB_TOKEN` for GHCR.
+
 ### Open-source online deployment with Coolify
 
 [Coolify](https://coolify.io/) is an open-source deployment platform that can be
