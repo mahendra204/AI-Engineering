@@ -1,0 +1,91 @@
+name: AI Engineering CD
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "rag_app/**"
+      - ".github/workflows/ai-engineering-cd.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/ai-engineering-rag
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.image.outputs.image }}
+      snapshot: ${{ steps.snapshot.outputs.image }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract image metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha
+            type=raw,value=latest
+            type=raw,value=snapshot
+
+      - name: Build and publish image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./rag_app
+          file: ./rag_app/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Export immutable image reference
+        id: image
+        run: echo "image=${IMAGE_NAME}:sha-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - name: Export snapshot image reference
+        id: snapshot
+        run: echo "image=${IMAGE_NAME}:snapshot" >> "$GITHUB_OUTPUT"
+
+  deploy-coolify:
+    name: Deploy with Coolify
+    needs: publish
+    if: ${{ vars.DEPLOY_PLATFORM == 'coolify' }}
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Trigger Coolify deployment
+        run: curl --fail --silent --show-error --retry 3 -X POST "${{ secrets.COOLIFY_WEBHOOK_URL }}"
+
+  deploy-local:
+    name: Deploy on local Docker runner
+    needs: publish
+    if: ${{ vars.DEPLOY_PLATFORM == 'local' }}
+    runs-on: [self-hosted, linux, docker]
+    environment: production
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Pull and restart local deployment
+        env:
+          IMAGE: ${{ needs.publish.outputs.snapshot }}
+          GHCR_USER: ${{ github.repository_owner }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: rag_app
+        run: |
+          echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+          RAG_IMAGE="$IMAGE" docker compose -f docker-compose.prod.yml pull
+          RAG_IMAGE="$IMAGE" docker compose -f docker-compose.prod.yml up -d --remove-orphans

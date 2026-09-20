@@ -97,6 +97,40 @@ Open http://localhost:8000/docs
 python scripts/query_cli.py --question "What is this document about?"
 ```
 
+## CI/CD and Deployment
+
+GitHub Actions validates the RAG app and Docker image on pull requests. A push to
+`main` publishes `ghcr.io/<owner>/ai-engineering-rag` with `latest`, a moving
+`snapshot` tag used for automatic deployments, and an immutable commit tag.
+
+### Free local deployment
+
+Install Docker Desktop, copy `.env.example` to `.env`, and run:
+
+```bash
+docker compose up -d api ui
+```
+
+For automatic deployments to a local Linux machine, install a GitHub Actions
+self-hosted runner with the labels `self-hosted`, `linux`, and `docker`. Set the
+repository variable `DEPLOY_PLATFORM` to `local`, then the CD workflow will pull
+the published image and restart the Compose services on that machine.
+
+### Open-source online deployment with Coolify
+
+[Coolify](https://coolify.io/) is an open-source deployment platform that can be
+self-hosted on a low-cost or free-tier Linux VPS. Create a Docker Compose
+application using `docker-compose.prod.yml`, configure `.env` on the server, and
+set `RAG_IMAGE` to
+`ghcr.io/<owner>/ai-engineering-rag:snapshot`. Make the GHCR package public or add
+read-only GHCR registry credentials in Coolify. Add the Coolify deploy webhook
+as the `COOLIFY_WEBHOOK_URL` secret, set the `production` environment, and set
+the repository variable `DEPLOY_PLATFORM` to `coolify`.
+Coolify will then redeploy whenever `main` publishes a new image.
+
+The production Compose file persists `data/` and `vectorstore/` on the host and
+uses the API healthcheck before marking the container healthy.
+
 ---
 
 ## 🔌 API Reference
